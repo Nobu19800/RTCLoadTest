@@ -1,0 +1,12 @@
+#ifdef TAO_IDL
+#include <tao/orb.idl>
+#endif
+
+#include "BasicDataType.idl"
+
+module TestService {
+interface TimeMeasurement
+{
+  RTC::Time getTime();
+};
+};
