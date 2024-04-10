@@ -120,15 +120,19 @@ bool loadTest(std::string lang, RTCLoadTest*rtclt, RTM::ManagerServant* mgrsvt)
 	}
 
 	auto now = std::chrono::high_resolution_clock::now().time_since_epoch();
-	auto now_sec = std::chrono::duration_cast<std::chrono::seconds>(now);
-	auto now_nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(now - now_sec);
+	auto nowTime = std::chrono::duration_cast<std::chrono::nanoseconds>(now);
+	//auto now_sec = std::chrono::duration_cast<std::chrono::seconds>(now);
+	//auto now_nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(now - now_sec);
+	/*
 	std::string command = std::string("RTC:AIST:Test:RTCStartTest:") + lang + std::string(":1.0.0");
 	command += "?conf.default.starttime_sec=";
 	command += coil::otos(now_sec.count());
 	command += "&conf.default.starttime_nsec=";
 	command += coil::otos(now_nsec.count());
 	//std::cout << __FILE__ << "\t" << __LINE__ << "\t" << now_sec.count() << "\t" << now_nsec.count() << std::endl;
-	//RTC::RTObject_var rtcst = mgrsvt.create_component("RTC:AIST:Test:RTCStartTest:C++:1.0.0?starttime_sec=10000000&starttime_nsec=2000000");
+	RTC::RTObject_var rtcst = mgrsvt->create_component(command.c_str());
+	*/
+	std::string command = std::string("RTC:AIST:Test:RTCStartTest:") + lang + std::string(":1.0.0");
 	RTC::RTObject_var rtcst = mgrsvt->create_component(command.c_str());
 
 	if (CORBA::is_nil(rtcst.in()))
@@ -161,8 +165,11 @@ bool loadTest(std::string lang, RTCLoadTest*rtclt, RTM::ManagerServant* mgrsvt)
 
 	try
 	{
-		RTC::Time diff = serviceIf->_ptr()->getTime();
-		double diff_time = static_cast<double>(diff.sec) + static_cast<double>(diff.nsec) * 1.0e-9;
+		RTC::Time startTime = serviceIf->_ptr()->getTime();
+		uint64_t startCount = startTime.sec*(uint64_t)1.0e+9 + startTime.nsec;
+		uint64_t diff = startCount - nowTime.count();
+
+		double diff_time = (double)diff * 1.0e-9;
 		std::cout << diff_time << std::endl;
 	}
 	catch (...)
